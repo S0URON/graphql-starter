@@ -1,0 +1,1 @@
+# Basic GraphQl mongodb starter featuring basic user CRUD and authentication
