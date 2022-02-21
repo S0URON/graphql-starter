@@ -1,43 +1,62 @@
 import { gql } from 'apollo-server-express';
 
 const typeDefs = gql`
-    scalar JSON
 
     schema {
         query: Query
+        mutation: Mutation
     }
 
     type Query {
-        """
-        Possible errors:
-        - invalid_input_data
-        - unknown_error_occurred
-        """
-        getOtp(phoneNum: String!): GetOtpRes!
-        """
-        Possible errors:
-        - invalid_input_data
-        - unknown_error_occurred
-        """
-        verifyOtp(phoneNum: String!, verifyCode: String!): GetOtpRes!
-        """
-        Possible errors:
-        - invalid_input_data
-        - unknown_error_occurred
-        """
-        resendOtp(phoneNum: String!,verification_sid: String!, verification_service_sid: String!): GetOtpRes!
+        getUser: User!
     }
-    type GetOtpRes {
-        verification: String!
-        verification_sid: String!
-        verification_service_sid: String!
+
+    type Mutation {
+        createUser(input: CreateUserInput!): Message!
+        signIn(input:SignInInput!):Token!
+        updateUser(input:UpdateUserInput):Message!
+        deleteUser(input:DeleteUserInput!):Message!
     }
-    
-    enum VerificationStatus {
-        approved
-        canceled
-        expired
-        pending
+
+    input CreateUserInput {
+        email: String!
+        password: String!
+        firstName: String!
+        lastName: String!
+        role: Role!
+    }
+
+    input SignInInput {
+        email: String!
+        password: String!
+    }
+
+    input UpdateUserInput {
+        email: String
+        firstName: String
+        lastName: String
+    }
+
+    input DeleteUserInput {
+        userId:String!
+    }
+
+    type User {
+        email: String!
+        firstName: String!
+        lastName: String!
+        role: String!
+    }
+    type Token {
+        token: String!
+    }
+    type Message {
+        message: String!
+    }
+
+    enum Role {
+        ADMIN
+        USER
     }
 `;
 module.exports = typeDefs;

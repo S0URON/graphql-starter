@@ -1,10 +1,18 @@
 import express from 'express';
 import { createServer } from 'http';
 import { ApolloServer } from 'apollo-server-express';
-
+import mongoose from 'mongoose';
+import * as authGuard from "./services/authGuard"
 import config from './config/config';
 import typeDefs from './graphql/schema';
 import resolvers from './graphql/resolvers';
+
+mongoose.Promise = global.Promise;
+mongoose.connect(config.DB_URI, { useNewUrlParser: true, useUnifiedTopology: true }).then(() => {
+  console.log("connected to db!")
+}).catch((err) => {
+  console.log("db connection error :", err);
+});
 
 const apolloServer = new ApolloServer({
   typeDefs,
@@ -13,8 +21,12 @@ const apolloServer = new ApolloServer({
     if (connection) {
       return connection.context;
     } else {
-      const authorization = req.headers.authorization;
-      return { authorization };
+      if(req.headers.authorization){
+        const authorization = req.headers.authorization;
+        const authorizedUser = await authGuard.verifyAccessToken(authorization);
+        return {authorizedUser}
+      }
+      return null
     }
   }
 });
